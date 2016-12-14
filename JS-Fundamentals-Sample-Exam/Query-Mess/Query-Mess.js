@@ -1,33 +1,41 @@
 function solve(inputArr) {
-    let splitExp = /\?|&/;
-    let regExExp = /%20|[+*-,._]/;
+    let splitExp = /\?|&/g;
 
-    let result = [];
+    let result = new Map();
 
     for (let input of inputArr) {
         let arr = input.split(splitExp);
         for (let element of arr) {
             let temp = element.split("=");
-            console.log(temp);
-            for (let i = 0; i < temp.length; i++) {
-                if (temp[0] != "url") {
-                    temp[i] = temp[i].replace(regExExp, "");
-                }
-            }
-            for (let i = 0; i < temp.length; i++) {
-                if (temp[0] && temp[1]) {
-                    if (result[temp[0]]) {
-
-                    }
+            for (let i = 0; i < temp.length - 1 ; i++) {
+                temp[i] = temp[i].replace(/%20|\+/g, " ").trim();
+                temp[i+1] = temp[i+1].replace(/%20|\+/g, " ").trim();
+                if (result.get(temp[i])) {
+                    let m = result.get(temp[i]);
+                    m.push(temp[i+1]);
+                } else {
+                    result.set(temp[i], [temp[i+1]]);
                 }
             }
         }
+
+        let string = "";
+
+        for (let [key, elem] of result) {
+            string += `${key}=[${elem.join(", ")}]`;
+        }
+
+        console.log(string);
+
+        result = new Map();
     }
 }
 
 solve([
-    "foo=%20foo&value=+val&foo+=5+%20+203",
-    "foo=poo%20&value=valley&dog=wow+",
-    "url=https://softuni.bg/trainings/coursesinstances/details/1070",
-    "https://softuni.bg/trainings.asp?trainer=nakov&course=oop&course=php"
+    "field=value1&field=value2&field=value3",
+    "http://example.com/over/there?name=ferret",
+    "url=https://softuni.bg/trainings/coursesinstances/details?https://softuni.bg/trainings.asp?trainer=nakov&course=oop&course=php/1070?https://softuni.bg/trainings.asp?trainer=nakov&course=oop&course=php",
+    // "https://softuni.bg/trainings.asp?trainer=nakov&course=oop&course=php?"
 ]);
+
+
